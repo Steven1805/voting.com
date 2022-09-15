@@ -57,14 +57,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Sondage'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Sondage'
         '401':
           $ref: '#/components/responses/401'
 
-  '/sondage{id}':
+  '/sondage/{id}':
     get:
       tags:
-      - Sondage
+        - Sondage
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       summary: the specific poll that will be answered
       operationId: getSondageId
       responses:
@@ -73,29 +81,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Sondage{id}'
-        '401':
-          $ref: '#/components/responses/401' 
-    post:
-      tags:
-        - Sondage
-      summary: Send the answered questions
-      requestBody:
-        required: true
-        $ref: '#/components/requestBodies/postSondageBody'
-      operationId: postSondageId
-      responses:
-        '200':
-          description: ok
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Sondage{id}'
+                type: object
+                $ref: '#/components/schemas/Sondage'
         '401':
           $ref: '#/components/responses/401'
     put:
       tags:
         - Sondage
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       summary: Modify the answers
       requestBody:
         required: true
@@ -107,37 +105,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Sondage{id}'
+                $ref: '#/components/schemas/CreateSondage'
         '401':
           $ref: '#/components/responses/401'
-    delete:
-      tags:
-        - Sondage
-      summary: Delete the answers
-      requestBody:
-        required: false
-        content: {}
-      operationId: deleteSondageId
-      responses:
-        200:
-          description: Success
-          content:
-            text/plain:
-              schema:
-                type: string
-                example: "Returns the id of the deleted projection"
-        400:
-          description: Error
-          content: {}
-
-
-
-
-
-
-
-
-
 
 components:
   requestBodies:
@@ -156,7 +126,7 @@ components:
         application/json:
           schema:
             $ref:
-              '#/components/schemas/Sondage{id}'
+              '#/components/schemas/Sondage'
   securitySchemes:
     BearerAuth:
       type: http
@@ -187,14 +157,13 @@ components:
     Signup:
       type: object
       properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
         email:
           type: string
         password:
-          type: string
-          enum:
-            - USER
-            - OWNER
-        bearer:
           type: string
     Sondage:
       type: object
@@ -205,7 +174,7 @@ components:
           type: string
         description:
           type: string
-    Sondage{id}:
+    CreateSondage:
       type: object
       properties:
         id: 
@@ -216,6 +185,9 @@ components:
           type: string
         questions:
           type: array
+          items:
+            type: object
+            $ref: '#/components/schemas/Question'
     Question: 
       type: object
       properties:
@@ -225,10 +197,22 @@ components:
           type: string
         options:
           type: array
-
-
-
-
+          items:
+            type: string
+    User:
+      type: object
+      properties:
+        firstname:
+          type: string
+        lastname:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum:
+            - ADMIN
+            - USER
 
     Page:
       type: integer
