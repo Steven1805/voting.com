@@ -1,0 +1,258 @@
+openapi: 3.0.3
+info:
+  version: '1.0'
+  title: Voting.com
+  description: voting api with all the verbs 
+
+servers:
+  - url: 'https://api-dev.hei.school'
+  - url: 'https://api-prod.hei.school'
+
+security:
+  - BearerAuth: [ ]
+
+paths:
+  '/auth/login':
+    post:
+      tags:
+        - Security
+      summary: Tells you who you are.
+      requestBody:
+        required: true
+        $ref: '#/components/requestBodies/postBody'
+      operationId: Login
+      responses:
+        '200':
+          description: Who you are
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/whoami'
+        '401':
+          $ref: '#/components/responses/401'
+  '/auth/signup':
+    get:
+      tags:
+        - Security
+      summary: Tells you who you are after subscribing.
+      operationId: signup
+      responses:
+        '200':
+          description: Who you are
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Signup'
+        '401':
+          $ref: '#/components/responses/401'
+  '/sondage':
+    get:
+      tags:
+      - Sondage
+      summary: list of the polls
+      operationId: getSondage
+      responses:
+        '200':
+          description: idk
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sondage'
+        '401':
+          $ref: '#/components/responses/401'
+
+  '/sondage{id}':
+    get:
+      tags:
+      - Sondage
+      summary: the specific poll that will be answered
+      operationId: getSondageId
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sondage{id}'
+        '401':
+          $ref: '#/components/responses/401' 
+    post:
+      tags:
+        - Sondage
+      summary: Send the answered questions
+      requestBody:
+        required: true
+        $ref: '#/components/requestBodies/postSondageBody'
+      operationId: postSondageId
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sondage{id}'
+        '401':
+          $ref: '#/components/responses/401'
+    put:
+      tags:
+        - Sondage
+      summary: Modify the answers
+      requestBody:
+        required: true
+        $ref: '#/components/requestBodies/postSondageBody'
+      operationId: putSondageId
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Sondage{id}'
+        '401':
+          $ref: '#/components/responses/401'
+    delete:
+      tags:
+        - Sondage
+      summary: Delete the answers
+      requestBody:
+        required: false
+        content: {}
+      operationId: deleteSondageId
+      responses:
+        200:
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Returns the id of the deleted projection"
+        400:
+          description: Error
+          content: {}
+
+
+
+
+
+
+
+
+
+
+components:
+  requestBodies:
+    postBody:
+      description: a JSON object containing login informations
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: 
+              '#/components/schemas/Login'
+    postSondageBody:
+      description: a JSON object containing the answers
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref:
+              '#/components/schemas/Sondage{id}'
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+
+  responses:
+    '401':
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotAuthorizedException'
+  schemas:
+    whoami:
+      type: object
+      properties:
+        email:
+          type: string
+        bearer:
+          type: string
+    Login:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    Signup:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+          enum:
+            - USER
+            - OWNER
+        bearer:
+          type: string
+    Sondage:
+      type: object
+      properties:
+        id: 
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+    Sondage{id}:
+      type: object
+      properties:
+        id: 
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        questions:
+          type: array
+    Question: 
+      type: object
+      properties:
+        sentence:
+          type: string
+        type:
+          type: string
+        options:
+          type: array
+
+
+
+
+
+    Page:
+      type: integer
+      description: Start at `1`
+    PageSize:
+      type: integer
+      description: Cannot exceed `500`
+
+    Exception:
+      type: object
+      properties:
+        type:
+          type: string
+        message:
+          type: string
+    BadRequestException:
+      allOf:
+        - $ref: '#/components/schemas/Exception'
+      example:
+        type: BadRequestException
+        message: Bad request
+    NotAuthorizedException:
+      allOf:
+        - $ref: '#/components/schemas/Exception'
+      example:
+        type: NotAuthorizedException
+        message: Not authorized
